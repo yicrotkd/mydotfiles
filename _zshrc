@@ -329,6 +329,9 @@ alias po="popd"
 ## sshで文字化けを防ぐ
 alias -g sshe="cocot -t UTF-8 -p EUC-JP -- ssh"
 
+## 標準入力をクリップボードにコピーする
+alias pbcopy="xsel --clipboard --input"
+
 ## lsとpsの設定
 ### ls: できるだけGNU lsを使う。
 ### ps: 自分関連のプロセスのみ表示。

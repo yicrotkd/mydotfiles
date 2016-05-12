@@ -83,6 +83,9 @@ set tabstop=4
 set list lcs=tab:>-
 set clipboard=unnamed,autoselect
 set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
+" vimfilerでのファイル操作有効化
+set modifiable
+set write
 
 " keymap
 "
@@ -102,202 +105,46 @@ autocmd QuickFixCmdPost *grep* cwindow
 "
 inoremap <C-@> <C-[>
 
-set nocompatible
+if &compatible
+  set nocompatible
+endif
+
 filetype plugin indent off
 
-if has('vim_starting')
-    set runtimepath+=~/.vim/neobundle.vim
-    call neobundle#rc(expand('~/.bundle'))
+let s:dein_dir = expand('~/.vim/dein')
+let s:dein_repo_dir = s:dein_dir . 'repos/github.com/Shougo/dein.vim'
+
+if !isdirectory(s:dein_repo_dir)
+  execute '!git clone https://github.com/Shougo/dein.vim' s:dein_repo_dir
+endif
+execute 'set runtimepath^=' . s:dein_repo_dir
+
+let g:dein#install_progress_type = 'title'
+let g:dein#install_message_type = 'none'
+let g:dein#enable_notification = 1
+
+let s:dein_path = expand('~/.vim/dein')
+if dein#load_state(s:dein_path)
+
+  call dein#begin(s:dein_path, split(glob('~/.vim/rc/*.toml'), '\n'))
+
+  call dein#load_toml('~/.vim/rc/dein.toml', {'lazy': 0})
+  call dein#load_toml('~/.vim/rc/dein_lazy.toml', {'lazy': 1})
+
+  call dein#end()
+  call dein#save_state()
 endif
 
-NeoBundle 'git://github.com/Shougo/unite.vim.git'
-NeoBundle 'git://github.com/Shougo/neobundle.vim.git'
-NeoBundle 'git://github.com/Shougo/neomru.vim.git'
-NeoBundle 'https://github.com/Shougo/neocomplcache'
-NeoBundle 'https://github.com/Shougo/vimshell'
-NeoBundle 'https://github.com/Shougo/vimproc'
-NeoBundle 'https://github.com/Shougo/vimfiler'
-NeoBundle 'https://github.com/thinca/vim-quickrun'
-NeoBundle 'https://github.com/scrooloose/nerdtree'
-NeoBundle 'git://github.com/vim-scripts/sudo.vim.git'
-NeoBundle 'git://github.com/scrooloose/syntastic.git'
-NeoBundle 'git://github.com/fatih/vim-go.git'
-NeoBundle 'https://github.com/ctrlpvim/ctrlp.vim'
-NeoBundle 'https://github.com/dag/vim2hs'
-NeoBundle 'https://github.com/eagletmt/neco-ghc'
-NeoBundle 'https://github.com/eagletmt/ghcmod-vim'
-NeoBundle 'https://github.com/easymotion/vim-easymotion'
-NeoBundle 'https://github.com/Shougo/neosnippet'
-NeoBundle 'https://github.com/Shougo/neosnippet-snippets'
-NeoBundle 'haya14busa/incsearch.vim'
-NeoBundle 'haya14busa/incsearch-migemo.vim'
-NeoBundle 'haya14busa/vim-migemo'
-NeoBundle 'tmhedberg/matchit'
-NeoBundle 'rking/ag.vim'
+if dein#check_install(['vimproc'])
+  call dein#install(['vimproc'])
+endif
+
+if dein#check_install()
+  " Installation check.
+  call dein#install()
+endif
 
 filetype plugin indent on
-
-execute pathogen#infect()
-
-"-----------------------------------------------
-" Configuration of syntastic
-"-----------------------------------------------
-let g:syntastic_mode_map = { 'mode': 'active',
-                           \ 'active_filetypes': ['ruby', 'javascript', 'python', 'haskell'],
-                           \ 'passive_filetypes': ['java', 'c'] }
-let g:syntastic_enable_signs=1
-let g:syntastic_javascript_checkers=['eslint']
-let g:syntastic_auto_loc_list=1
-let g:syntastic_loc_list_height=4
-let g:syntastic_python_checkers = ['pyflakes', 'pep8']
-
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-
-
-"-----------------------------------------------
-" Configuration of neocomplcache
-"-----------------------------------------------
-" Use neocomplcache.
-let g:neocomplcache_enable_at_startup = 1
-" Use smartcase.
-let g:neocomplcache_enable_smart_case = 1
-" Use camel case completion.
-let g:neocomplcache_enable_camel_case_completion = 1
-" Use underbar completion.
-let g:neocomplcache_enable_underbar_completion = 1
-" Set minimum syntax keyword length.
-let g:neocomplcache_min_syntax_length = 3
-let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
-
-" Define dictionary.
-let g:neocomplcache_dictionary_filetype_lists = {
-    \ 'default' : '',
-    \ 'perl' : $HOME.'/.vim/dictionary/perl.dict'
-    \ }
-
-" Define keyword.
-if !exists('g:neocomplcache_keyword_patterns')
-  let g:neocomplcache_keyword_patterns = {}
-endif
-let g:neocomplcache_keyword_patterns['default'] = '\h\w*'
-
-" Plugin key-mappings.
-imap <C-k>     <Plug>(neocomplcache_snippets_expand)
-smap <C-k>     <Plug>(neocomplcache_snippets_expand)
-inoremap <expr><C-g>     neocomplcache#undo_completion()
-inoremap <expr><C-l>     neocomplcache#complete_common_string()
-
-" SuperTab like snippets behavior.
-"imap <expr><TAB> neocomplcache#sources#snippets_complete#expandable() ? "\<Plug>(neocomplcache_snippets_expand)" : pumvisible() ? "\<C-n>" : "\<TAB>"
-
-" Recommended key-mappings.
-" <CR>: close popup and save indent.
-inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
-" <TAB>: completion.
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-" <C-h>, <BS>: close popup and delete backword char.
-inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
-inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
-inoremap <expr><C-y>  neocomplcache#close_popup()
-inoremap <expr><C-e>  neocomplcache#cancel_popup()
-
-"--------------------------------------------
-" unite.vim configuration
-" -------------------------------------------
-" Start with insert-mode
-let g:unite_enable_start_insert = 1
-let g:unite_source_history_yank_enable = 1
-
-let g:unite_enable_ignore_case = 1
-let g:unite_enable_smart_case = 1
-
-let g:unite_source_file_mru_limit = 1000
-" View all buffer
-noremap <C-U><C-B> :Unite buffer<CR>
-" Vier all files
-noremap <C-U><C-F> :UniteWithBufferDir -buffer-name=files file<CR>
-" View history of yank
-noremap <C-U><C-Y> :Unite history/yank<CR>
-" View all registers
-noremap <C-U><C-R> :Unite -buffer-name=register register<CR>
-" Files and buffers
-noremap <C-U><C-U> :Unite buffer file_mru<CR>
-" All view
-noremap <C-U><C-A> :Unite -buffer-name=files buffer file_mru bookmark file<CR>
-" Search like ctrlp
-noremap <C-U><C-P> :Unite file_rec/async<CR>
-" Close unite
-au FileType unite nnoremap <silent> <buffer> <ESC><ESC> :q<CR>
-au FileType unite inoremap <silent> <buffer> <ESC><ESC> <ESC>:q<CR>
-
-" Search all files under current directory
-nnoremap <silent> ,g :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
-" Search under current directory with cursor's word
-nnoremap <silent> ,cg :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W>
-" Re-open the search result
-nnoremap <silent> ,r :<C-u>UniteResume search-buffer<CR>
-" Use ag(The Silver Searcher) if exists
-if executable('ag')
-  let g:unite_source_grep_command = 'ag'
-  let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
-  let g:unite_source_grep_recursive_opt = '--nogroup --nocolor --column'
-endif
-
-"--------------------------------------------
-" ghcmod-vim configuration
-" -------------------------------------------
-command T GhcModType 
-
-"-----------------------------------------------
-" Configuration of easymotion
-"-----------------------------------------------
-map <Leader> <Plug>(easymotino-prefix)
-nmap s <Plug>(easymotion-s2)
-
-"-----------------------------------------------
-" Configuration of ctrlp
-"-----------------------------------------------
-if executable('ag')
-  let g:ctrlp_use_caching = 0
-  let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup -g ""'
-endif
-
-"--------------------------------------------
-" Configuration of neosnippet
-" -------------------------------------------
-" Plugin key-mappings.
-imap <C-k>     <Plug>(neosnippet_expand_or_jump)
-smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-xmap <C-k>     <Plug>(neosnippet_expand_target)
-
-" SuperTab like snippets behavior.
-imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-\ "\<Plug>(neosnippet_expand_or_jump)"
-\: pumvisible() ? "\<C-n>" : "\<TAB>"
-smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-\ "\<Plug>(neosnippet_expand_or_jump)"
-\: "\<TAB>"
-
-" For conceal markers.
-if has('conceal')
-  set conceallevel=2 concealcursor=niv
-endif
-
-"--------------------------------------------
-" Configuration of quickrun
-" -------------------------------------------
-let g:quickrun_config = {}
-let g:quickrun_config['sql'] = {
-	\ 'command': 'psql',
-	\ 'exec': ['%c %o < %s'],
-	\ 'cmdopt': '%{MakepgsqlCommandOptions()}',
-	\ }
 
 function ResetpgsqlOptions()
 	unlet g:pgsql_config_host
@@ -344,6 +191,12 @@ endfunction
 map m/ <Plug>(incsearch-migemo-/)
 map m? <Plug>(incsearch-migemo-?)
 map mg/ <Plug>(incsearch-migemo-stay)
+
+"--------------------------------------------
+" Configuration of vim-markdown, previm, open-browser
+" -------------------------------------------
+au BufRead,BufNewFile *.md set filetype=markdown
+let g:previm_open_cmd = 'google-chrome'
 
 " -------------------------------------------
 " 文字コードの自動認識
@@ -433,5 +286,3 @@ endfunction
 "" autocmd
 " Shift + F で自動修正
 autocmd FileType python nnoremap <S-f> :call Autopep8()<CR>
-" vim起動時にファイル指定しなければVimFilerを開く
-autocmd VimEnter * if !argc() | VimFiler | endif

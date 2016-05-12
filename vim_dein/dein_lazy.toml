@@ -1,0 +1,75 @@
+[[plugins]]
+repo = 'Shougo/neocomplete.vim'
+depends = 'context_filetype.vim'
+if = "has('lua')"
+on_event = 'InsertEnter'
+hook_source = '''
+  let g:neocomplete#enable_at_startup = 1
+  let g:neocomplete#disable_auto_complete = 0
+
+  let g:neocomplete#enable_smart_case = 1
+  let g:neocomplete#enable_camel_case = 1
+
+  let g:neocomplete#enable_underbar_completion = 1
+  let g:neocomplete#enable_camel_case_completion = 1
+
+  let g:neocomplete#enable_quick_match = 1
+  let g:neocomplete#enable_auto_select = 1
+
+  let g:neocomplete#max_list = 20
+  let g:neocomplete#sources#syntax#min_keyword_length = 3
+  let g:neocomplete#auto_completion_start_length = 2
+  let g:neocomplete#manual_completion_start_length = 0
+  let g:neocomplete#enable_auto_close_preview = 0
+'''
+hook_add = '''
+  " <TAB>: completion.
+  inoremap <silent><expr> <TAB>
+        \ pumvisible() ? "\<C-n>" :
+        \ <SID>check_back_space() ? "\<TAB>" :
+        \ neocomplete#start_manual_complete()
+  function! s:check_back_space() abort "{{{
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~ '\s'
+  endfunction"}}}
+
+  " <S-TAB>: completion back.
+  inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<C-h>"
+
+  " <C-h>, <BS>: close popup and delete backword char.
+  inoremap <expr> <C-h> neocomplete#smart_close_popup()."\<C-h>"
+  inoremap <expr> <BS> neocomplete#smart_close_popup()."\<C-h>"
+
+  inoremap <expr> <C-g>     neocomplete#undo_completion()
+  inoremap <expr> <C-l>     neocomplete#mappings#complete_common_string()
+'''
+hook_post_source = '''
+'''
+
+[[plugins]]
+repo = 'Shougo/vimshell.vim'
+on_cmd = ['VimShell']
+hook_add = 'nmap [Space]s <Plug>(vimshell_switch)'
+
+[[plugins]]
+repo = 'Konfekt/FastFold'
+on_event = 'InsertEnter'
+hook_post_source = 'FastFoldUpdate'
+
+[[plugins]]
+repo = 'rcmdnk/vim-markdown'
+on_ft = ['markdown']
+hook_post_source = 'au BufRead,BufNewFile *.md set filetype=markdown'
+
+[[plugins]]
+repo = 'kannokanno/previm'
+on_ft = ['markdown']
+hook_source = "let g:previm_open_cmd = 'google-chrome'"
+
+[[plugins]]
+repo = 'tyru/open-browser.vim'
+on_ft = ['markdown']
+
+[[plugins]]
+repo = 'elzr/vim-json'
+on_ft = ['json']

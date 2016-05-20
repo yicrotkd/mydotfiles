@@ -70,7 +70,7 @@ hook_source = '''
   let g:vimfiler_as_default_explorer = 1
 '''
 hook_add = '''
-  nnoremap <silent> [Space]v :<C-u>VimFiler -invisible<CR>
+  nnoremap <silent> <Leader>z :<C-u>VimFilerBufferDir -split -simple -winwidth=45 -toggle -no-quit<CR>
 '''
 hook_post_source = '''
 '''

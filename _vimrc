@@ -50,6 +50,8 @@ endif
 " let g:xml_syntax_folding = 1
 " set foldmethod=syntax
 
+let mapleader="\<Space>"
+
 set foldmethod=expr foldexpr=XmlSQLFold(v:lnum)
 
 set number

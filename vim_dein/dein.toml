@@ -28,8 +28,8 @@ hook_source = '''
   endif
 '''
 hook_add = '''
-  " View all buffer
-  noremap <C-U><C-B> :Unite buffer<CR>
+  " View all bookmark
+  noremap <C-U><C-B> :Unite bookmark<CR>
   " Vier all files
   noremap <C-U><C-F> :UniteWithBufferDir -buffer-name=files file<CR>
   " View history of yank
@@ -52,6 +52,11 @@ hook_add = '''
   nnoremap <silent> ,cg :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W>
   " Re-open the search result
   nnoremap <silent> ,r :<C-u>UniteResume search-buffer<CR>
+
+  call unite#custom#profile('default', 'context', {
+        \   'start_insert': 1,
+        \   'winheight': 15,
+  \ })
 '''
 
 [[plugins]]
@@ -77,6 +82,10 @@ repo = 'jceb/vim-hier'
 repo = 'thinca/vim-quickrun'
 hook_add = '''
   let g:quickrun_config = {
+        \ "watchdogs_checker/_" : {
+        \   "outputter/quickfix/open_cmd": "",
+        \ },
+        \
         \ "watchdogs_checker/ghc-mod" : {
         \   "command": "ghc-mod",
         \   "exec": '%c %o --hlintOpt="--language=XmlSyntax" check %s:p',
@@ -100,6 +109,12 @@ hook_add = '''
 repo = 'osyo-manga/shabadou.vim'
 
 [[plugins]]
+repo = 'cohama/vim-hier'
+
+[[plugins]]
+repo = 'dannyob/quickfixstatus'
+
+[[plugins]]
 repo = 'osyo-manga/vim-watchdogs'
 depends = ['vim-quickrun', 'vimproc', 'shabadou.vim']
 hook_add = '''
@@ -107,4 +122,12 @@ hook_add = '''
   let g:watchdogs_check_CursorHold_enable = 1
 '''
 hook_post_source = 'call watchdogs#setup(g:quickrun_config)'
+
+[[plugins]]
+repo = 'tyru/open-browser.vim'
+hook_add = '''
+  let g:netrw_nogx = 1 " disable netrw's gx mapping.
+  nmap gx <Plug>(openbrowser-smart-search)
+  vmap gx <Plug>(openbrowser-smart-search)
+'''
 

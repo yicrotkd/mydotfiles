@@ -14,13 +14,12 @@ hook_source = '''
   let g:neocomplete#enable_camel_case_completion = 1
 
   let g:neocomplete#enable_quick_match = 1
-  let g:neocomplete#enable_auto_select = 1
 
   let g:neocomplete#max_list = 20
   let g:neocomplete#sources#syntax#min_keyword_length = 3
   let g:neocomplete#auto_completion_start_length = 2
   let g:neocomplete#manual_completion_start_length = 0
-  let g:neocomplete#enable_auto_close_preview = 0
+  let g:neocomplete#enable_auto_close_preview = 1
 '''
 hook_add = '''
   " <TAB>: completion.
@@ -42,6 +41,10 @@ hook_add = '''
 
   inoremap <expr> <C-g>     neocomplete#undo_completion()
   inoremap <expr> <C-l>     neocomplete#mappings#complete_common_string()
+
+  " docstringは表示しない
+  autocmd FileType python setlocal completeopt-=preview
+
 '''
 hook_post_source = '''
 '''
@@ -73,3 +76,26 @@ on_ft = ['json']
 [[plugins]]
 repo = 'tyru/restart.vim'
 on_cmd = ['Restart']
+
+[[plugins]]
+repo = 'eagletmt/ghcmod-vim'
+on_ft = ['haskell', 'hs']
+
+[[plugins]]
+repo = 'scrooloose/syntastic'
+on_event= ['VimEnter', 'FocusLost', 'CursorHold']
+hook_add = '''
+  let g:syntastic_javascript_checkers = ['eslint']
+  let g:syntastic_python_checkers = ['pylint']
+
+  set statusline+=%#warningmsg#
+  set statusline+=%{SyntasticStatuslineFlag()}
+  set statusline+=%*
+
+  let g:syntastic_always_populate_loc_list = 1
+  let g:syntastic_enable_signs = 1
+  let g:syntastic_auto_loc_list = 1
+  let g:syntastic_check_on_wq = 0
+
+  let g:syntastic_loc_list_height = 5
+'''

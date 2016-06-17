@@ -11,7 +11,7 @@ repo = 'Shougo/neomru.vim'
 [[plugins]]
 repo = 'Shougo/unite.vim'
 depends = 'neomru.vim'
-hook_source = '''
+hook_add = '''
   " Start with insert-mode
   let g:unite_enable_start_insert = 1
   let g:unite_source_history_yank_enable = 1
@@ -65,7 +65,7 @@ repo = 'Shougo/context_filetype.vim'
 [[plugins]]
 repo = 'Shougo/vimfiler.vim'
 depends = 'unite.vim'
-hook_source = '''
+hook_add = '''
   let g:vimfiler_enable_clipboard = 0
   let g:vimfiler_as_default_explorer = 1
 '''
@@ -76,52 +76,24 @@ hook_post_source = '''
 '''
 
 [[plugins]]
-repo = 'jceb/vim-hier'
-
-[[plugins]]
 repo = 'thinca/vim-quickrun'
 hook_add = '''
-  let g:quickrun_config = {
-        \ "watchdogs_checker/_" : {
-        \   "outputter/quickfix/open_cmd": "",
-        \ },
-        \
-        \ "watchdogs_checker/ghc-mod" : {
-        \   "command": "ghc-mod",
-        \   "exec": '%c %o --hlintOpt="--language=XmlSyntax" check %s:p',
-        \ },
-        \
-        \ "javascript/watchdogs_checker" : {
-        \   "type": "eslint",
-        \ },
-        \ "haskell/watchdogs_checker" : {
-        \   "type": "watchdogs_checker/ghc-mod",
-        \ },
-  \ }
+  let g:quickrun_config = get(g:, 'quickrun_config', {})
+
   let g:quickrun_config['sql'] = {
         \ 'command': 'psql',
         \ 'exec': ['%c %o < %s'],
         \ 'cmdopt': '%{MakepgsqlCommandOptions()}',
         \ }
+
+  " stop quickrun with <Ctrl-c>
+  nnoremap <expr><silent> <C-c> quickrun#is_running() ? quickrun#sweep_sessions() : "\<C-c>"
 '''
-
-[[plugins]]
-repo = 'osyo-manga/shabadou.vim'
-
 [[plugins]]
 repo = 'cohama/vim-hier'
 
 [[plugins]]
 repo = 'dannyob/quickfixstatus'
-
-[[plugins]]
-repo = 'osyo-manga/vim-watchdogs'
-depends = ['vim-quickrun', 'vimproc', 'shabadou.vim']
-hook_add = '''
-  let g:watchdogs_check_BufWritePost_enable = 1
-  let g:watchdogs_check_CursorHold_enable = 1
-'''
-hook_post_source = 'call watchdogs#setup(g:quickrun_config)'
 
 [[plugins]]
 repo = 'tyru/open-browser.vim'

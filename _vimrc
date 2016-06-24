@@ -1,6 +1,8 @@
 set nocompatible
-source $VIMRUNTIME/vimrc_example.vim
-source $VIMRUNTIME/ftplugin/xml-sql_fold.vim
+if !has('mac')
+  source $VIMRUNTIME/vimrc_example.vim
+  source $VIMRUNTIME/ftplugin/xml-sql_fold.vim
+endif
 behave mswin
 
 set diffexpr=MyDiff()
@@ -79,6 +81,9 @@ set incsearch
 set hlsearch
 set showmatch
 set guifont=Ricty\ 10.5
+if has('mac')
+  set guifont=Ricty:h16
+endif
 set wrap
 set wildmenu
 set tabstop=4
@@ -88,6 +93,7 @@ set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
 " vimfilerでのファイル操作有効化
 set modifiable
 set write
+set backspace=indent,eol,start
 
 " keymap
 "

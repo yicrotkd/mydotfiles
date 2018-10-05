@@ -1,6 +1,6 @@
 
 set -U FZF_LEGACY_KEYBINDINGS 0
-set -U EDITOR vim
+set -Ux EDITOR nvim
 
 ## env setting
 set -x GOPATH $HOME/.go

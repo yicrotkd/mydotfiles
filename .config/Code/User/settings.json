@@ -5,5 +5,9 @@
     "workbench.iconTheme": "vscode-icons",
     "editor.fontLigatures": true,
     "editor.fontFamily": "'Ricty Diminished', 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
-    "workbench.colorTheme": "Flatland Monokai"
+    "workbench.colorTheme": "Flatland Monokai",
+    "window.zoomLevel": 0,
+    "files.associations": {
+        "*.sqltmpl": "sql"
+    }
 }

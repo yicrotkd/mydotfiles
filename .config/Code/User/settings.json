@@ -1,0 +1,9 @@
+{
+    "files.autoGuessEncoding": true,
+    "gitlens.defaultDateStyle": "absolute",
+    "gitlens.defaultDateFormat": "YYYY-MM-DD HH:mm",
+    "workbench.iconTheme": "vscode-icons",
+    "editor.fontLigatures": true,
+    "editor.fontFamily": "'Ricty Diminished', 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
+    "workbench.colorTheme": "Flatland Monokai"
+}

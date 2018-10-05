@@ -1,0 +1,5 @@
+// Place your key bindings in this file to overwrite the defaults
+[
+    {"key": "ctrl+j", "command": "scrollLineDown", "when": "editorTextFocus" },
+    {"key": "ctrl+k", "command": "scrollLineUp", "when": "editorTextFocus" }
+]

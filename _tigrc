@@ -1,0 +1,43 @@
+set wrap-lines = yes
+set diff-options = -m --first-parent
+
+set diff-highlight = true
+
+color  diff-header       default magenta
+color  diff-chunk        black   white
+
+# display commitID
+set main-view = id date author:email-user commit-title:graph=yes,refs=yes
+
+# display line-number in blame view
+set blame-view  = date:default author:email-user id:yes,color line-number:yes,interval=1 text
+
+set pager-view  = line-number:yes,interval=1 text
+set stage-view  = line-number:yes,interval=1 text
+set log-view    = line-number:yes,interval=1 text
+set blob-view   = line-number:yes,interval=1 text
+set diff-view   = line-number:yes,interval=1 text:yes,commit-title-overflow=no
+
+set line-graphics = utf-8
+
+set mouse = true
+
+# g をファイル先頭に移動に変更、 view-grep を再割当て
+bind generic g      move-first-line
+bind generic E      view-grep
+
+# G でファイル末尾に移動 (default: :toggle commit-title-graph)
+bind generic G      move-last-line
+bind main    G      move-last-line
+
+# Alt-g で :toggle commit-title-graph
+bind main    <Esc>g :toggle commit-title-graph
+
+# L で reflog
+bind generic L      !sh -c "git reflog --pretty=raw | tig --pretty=raw"
+
+# _ で指定 reflog 番号にリセット
+bind generic _      ?git reset --hard HEAD@{"%(prompt Enter HEAD@{} number: )"}
+
+# ! で revert
+bind main    !      ?git revert %(commit)

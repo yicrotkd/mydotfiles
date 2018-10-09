@@ -7,6 +7,7 @@ set -x GOPATH $HOME/.go
 set -x GOROOT /usr/local/go
 set -x PATH $PATH $GOROOT/bin
 set -x PATH $PATH $GOPATH/bin
+set -x PATH $PATH $HOME/.cargo/bin
 
 # pgsql
 set -x PATH $PATH /usr/local/pgsql/bin

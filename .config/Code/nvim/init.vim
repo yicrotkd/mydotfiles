@@ -33,6 +33,17 @@ Plug 'phanviet/vim-monokai-pro'
 Plug 'pangloss/vim-javascript'
 Plug 'Shougo/denite.nvim'
 Plug 'Shougo/neomru.vim'
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'nixprime/cpsm', { 'do': ':UpdateRemotePlugins' }
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'junegunn/vim-emoji'
+
+" git plugin
+" https://github.com/tpope/vim-fugitive
+Plug 'tpope/vim-fugitive'
+" asynchronous lint engine
+Plug 'w0rp/ale'
 
 call plug#end()
 
@@ -50,27 +61,32 @@ if s:is_plugged("denite.nvim")
 	nmap <C-u> [denite]
 
 	call denite#custom#var('file/rec', 'command', ['rg', '--files', '--glob', '!.git', '--glob', '!node_modules'])
-	call denite#custom#var('grep', 'command', ['rg'])
-
-	call denite#custom#source('file_mru', 'matchers', ['matcher/fuzzy', 'matcher/project_files'])
 	call denite#custom#source('file/rec', 'matchers', ['matcher/cpsm'])
 
-	" denite/insert モードのときは，C- で移動できるようにする
-	call denite#custom#map('insert', "<C-j>", '<denite:move_to_next_line>')
-	call denite#custom#map('insert', "<C-k>", '<denite:move_to_previous_line>')
+	call denite#custom#var('grep', 'command', ['pt', '--nogroup', '--nocolor', '--smart-case', '--hidden'])
+	call denite#custom#var('grep', 'default_opts', [])
+	call denite#custom#var('grep', 'recursive_opts', [])
+
+	call denite#custom#source('file_mru', 'matchers', ['matcher/cpsm'])
 
 	" tabopen や vsplit のキーバインドを割り当て
 	call denite#custom#map('insert', "<C-t>", '<denite:do_action:tabopen>')
 	call denite#custom#map('insert', "<C-v>", '<denite:do_action:vsplit>')
 	call denite#custom#map('normal', "v", '<denite:do_action:vsplit>')
 
+
 	" jj で denite/insert を抜けるようにする
 	call denite#custom#map('insert', 'jj', '<denite:enter_mode:normal>')
 
+	" Change ignore_globs
+	call denite#custom#filter('matcher/ignore_globs', 'ignore_globs',
+		\ [ '.git/', '.ropeproject/', '__pycache__/',
+		\   'venv/', 'images/', '*.min.*', 'img/', 'fonts/'])
+
 	" key mapping
 	" list flies ctrlp
-	noremap <C-p> :Denite file_rec -mode=insert<CR>
-	noremap [denite]<C-f> :Denite file_rec -mode=insert<CR>
+	noremap <C-p> :Denite file/rec -mode=insert<CR>
+	noremap [denite]<C-f> :Denite file/rec -mode=insert<CR>
 
 	" list directories
 	noremap [denite]<C-d> :<C-u>Denite directory_rec<CR>
@@ -79,13 +95,45 @@ if s:is_plugged("denite.nvim")
 	" list file_mru
 	noremap [denite]<C-u> :<C-u>Denite file_mru -mode=insert<CR>
 
+	" grep
+	nnoremap <silent> [denite]<C-g> :<C-u>Denite grep -mode=insert<CR>
+	nnoremap <silent> [denite]<C-r> :<C-u>Denite -resume<CR>
+	nnoremap <silent> [denite]<C-n> :<C-u>Denite -resume -cursor-pos=+1 -immediately<CR>
+	nnoremap <silent> [denite]<C-p> :<C-u>Denite -resume -cursor-pos=-1 -immediately<CR>
+
 	" moving
 	call denite#custom#map('normal', '<C-n>', '<denite:move_to_next_line>', 'noremap')
 	call denite#custom#map('insert', '<C-n>', '<denite:move_to_next_line>', 'noremap')
+	call denite#custom#map('insert', "<Down>", '<denite:move_to_next_line>', 'noremap')
 	call denite#custom#map('normal', '<C-p>', '<denite:move_to_previous_line>', 'noremap')
 	call denite#custom#map('insert', '<C-p>', '<denite:move_to_previous_line>', 'noremap')
+	call denite#custom#map('insert', "<Up>", '<denite:move_to_previous_line>', 'noremap')
 	call denite#custom#map('normal', '<C-u>', '<denite:move_up_path>', 'noremap')
 	call denite#custom#map('insert', '<C-u>', '<denite:move_up_path>', 'noremap')
+endif
+
+if s:is_plugged("neomru.vim")
+	let g:neomru#file_mru_limit = 3000
+	let g:neomru#follow_links = 1
+endif
+
+if s:is_plugged("ale")
+	let b:ale_linters = {
+	\	'javascript': ['eslint'],
+	\}
+	let g:ale_lint_on_text_changes = 'never'
+	let g:ale_lint_on_enter = 0
+
+	" Only run linters named in ale_linters settings.
+	let g:ale_linters_explicit = 1
+endif
+
+if s:is_plugged("vim-airline")
+	let g:airline_powerline_fonts=1
+endif
+
+if s:is_plugged("deoplete.nvim")
+	let g:deoplete#enable_at_startup = 1
 endif
 
 set termguicolors

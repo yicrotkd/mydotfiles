@@ -9,5 +9,15 @@
     "window.zoomLevel": 0,
     "files.associations": {
         "*.sqltmpl": "sql"
-    }
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/*/**": true
+    },
+    "flow.useNPMPackagedFlow": true,
+    "javascript.validate.enable": false,
+    "editor.minimap.enabled": false,
+    "workbench.editor.enablePreview": false,
+    "terminal.integrated.rendererType": "dom"
 }

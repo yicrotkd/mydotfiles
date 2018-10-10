@@ -1,6 +1,7 @@
 \x auto
-\pset null #
+\pset null '[NULL]'
 \timing
-\set COMP_KEYWORD_CASE upper
+\set VERBOSITY verbose
+\set HISTCONTROL ignoredups
 \set PROMPT1 '%[%033[1m%]%M %/%R%[%033[0m%]%# '
 \set PROMPT2 '[more] %R > '

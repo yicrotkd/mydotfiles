@@ -27,22 +27,32 @@ noremap <C-K> <C-Y>
 noremap <C-H> <C-W><
 noremap <C-L> <C-W>>
 
+" auto-install vim-plug                                                                                                                
+if empty(glob('~/.local/share/nvim/site/autoload/plug.vim'))
+    silent !curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
 " Plugin Management
-call plug#begin('~/.local/share/nvim/plugged')
+call plug#begin('~/.config/nvim/plugged')
 
 Plug 'cocopon/vaffle.vim', { 'on': 'Vaffle'}
 Plug 'crusoexia/vim-monokai'
 Plug 'phanviet/vim-monokai-pro'
 
-" javascript
+" JavaScript
 Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 
 " Rust
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 Plug 'racer-rust/vim-racer', { 'for': 'rust' }
 
-" typescript
+" TypeScript
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+
+" Kotlin
+Plug 'udalov/kotlin-vim', { 'for': 'kotlin' }
 
 Plug 'easymotion/vim-easymotion'
 Plug 'Shougo/denite.nvim'

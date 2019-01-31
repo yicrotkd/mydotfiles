@@ -41,17 +41,22 @@ Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 Plug 'racer-rust/vim-racer', { 'for': 'rust' }
 
+" typescript
+Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+
 Plug 'easymotion/vim-easymotion'
 Plug 'Shougo/denite.nvim'
 Plug 'Shougo/neomru.vim'
 Plug 'Shougo/vimproc.vim', { 'do': 'make' }
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'kristijanhusak/defx-git'
 Plug 'nixprime/cpsm', { 'do': ':UpdateRemotePlugins' }
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'thinca/vim-quickrun'
 Plug 'junegunn/vim-emoji'
+Plug 'szw/vim-tags'
 
 " git plugin
 " https://github.com/tpope/vim-fugitive
@@ -75,7 +80,7 @@ if s:is_plugged("denite.nvim")
 	nmap <C-u> [denite]
 
 	call denite#custom#var('file/rec', 'command', ['rg', '--files', '--glob', '!.git', '--glob', '!node_modules'])
-	call denite#custom#source('file/rec', 'matchers', ['matcher/cpsm', 'matcher/ignore_globs'])
+	call denite#custom#source('file/rec', 'matchers', ['matcher/cpsm', 'matcher/project_files', 'matcher/ignore_globs'])
 	call denite#custom#source('file/rec', 'sorters', ['sorter/sublime'])
 
 	call denite#custom#var('grep', 'command', ['pt', '--nogroup', '--nocolor', '--smart-case', '--hidden'])
@@ -148,16 +153,16 @@ if s:is_plugged("neomru.vim")
 endif
 
 if s:is_plugged("defx.nvim")
-	command DefxBufferDir Defx `expand('%:p:h')` -search=`expand('%:p')` -new
+	command DefxBufferDir Defx `expand('%:p:h')` -search=`expand('%:p')` -new -columns=git:mark:filename:type
 	command DefxSplit Defx -split=vertical -winwidth=50 -direction=topleft
 	command VimFilerBufferDir DefxBufferDir
-	command VimFiler Defx -new
+	command VimFiler Defx -new -columns=git:mark:filename:type
+
+	let g:defx_git#column_length = 2
 
 	autocmd FileType defx call s:defx_my_settings()
 	function! s:defx_my_settings() abort
 	  " Define mappings
-	  nnoremap <silent><buffer><expr> <CR>
-	  \ defx#do_action('open')
 	  nnoremap <silent><buffer><expr> c
 	  \ defx#do_action('copy')
 	  nnoremap <silent><buffer><expr> m
@@ -194,6 +199,8 @@ if s:is_plugged("defx.nvim")
 	  \ defx#do_action('toggle_select') . 'j'
 	  nnoremap <silent><buffer><expr> *
 	  \ defx#do_action('toggle_select_all')
+	  nnoremap <silent><buffer><expr> <CR>
+	  \ defx#do_action('drop')
 	  nnoremap <silent><buffer><expr> j
 	  \ line('.') == line('$') ? 'gg' : 'j'
 	  nnoremap <silent><buffer><expr> k
@@ -210,6 +217,7 @@ endif
 if s:is_plugged("ale")
 	let g:ale_linters = {
 	\  'javascript': ['eslint'],
+	\  'typescript': ['tslint'],
 	\  'rust': ['rustc'],
 	\}
 	" Set this. Airline will handle the rest.
@@ -233,6 +241,19 @@ if s:is_plugged("ale")
 		\)
 	endfunction
 	set statusline=%{LinterStatus()}
+
+	" perttier settings
+	let g:ale_fixers = {}
+	let g:ale_fixers['javascript'] = ['prettier-eslint']
+    "let g:ale_fixers['typescript'] = ['prettier']
+    let g:ale_fixers['typescript'] = ['tslint']
+
+	" ファイル保存時に実行
+	let g:ale_fix_on_save = 1
+
+	" ローカルの設定ファイルを考慮する
+	let g:ale_javascript_prettier_use_local_config = 1
+	let g:ale_typescript_prettier_use_local_config = 1
 
 endif
 
@@ -258,6 +279,12 @@ endif
 
 if s:is_plugged("deoplete.nvim")
 	let g:deoplete#enable_at_startup = 1
+	" Use smartcase.
+	call deoplete#custom#option('smart_case', v:true)
+
+	" <C-h>, <BS>: close popup and delete backword char.
+	inoremap <expr><C-h> deoplete#smart_close_popup()."\<C-h>"
+	inoremap <expr><BS>  deoplete#smart_close_popup()."\<C-h>"
 endif
 
 if s:is_plugged("vim-quickrun")
@@ -340,4 +367,8 @@ if s:is_plugged("vim-easymotion")
 	" Move to word
 	map  <leader>w <Plug>(easymotion-bd-w)
 	nmap <leader>w <Plug>(easymotion-overwin-w)
+endif
+
+if s:is_plugged("vim-tags")
+	nmap <C-i> :pop<CR>
 endif

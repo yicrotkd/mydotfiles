@@ -5,5 +5,8 @@
 \set HISTCONTROL ignoredups
 \set PROMPT1 '%[%033[1m%]%M %/%R%[%033[0m%]%# '
 \set PROMPT2 '[more] %R > '
+
+\set PROMPT1 '%[%033[1m%](%n@%M:%>)%[%033[0m%] [%[%033[1;32m%]%/%[%033[0m%]] \n=# '
+\set PROMPT2 ''
 \setenv PAGER 'pspg -s 6 -F --less-status-bar --no-mouse'
 \pset pager always

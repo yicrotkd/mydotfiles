@@ -49,7 +49,11 @@ Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 Plug 'racer-rust/vim-racer', { 'for': 'rust' }
 
 " TypeScript
-Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
+
+" set filetypes as typescript.tsx
+"autocmd BufNewFile,BufRead *.tsx,*.jsx set filetype=typescript.tsx
 
 " Kotlin
 Plug 'udalov/kotlin-vim', { 'for': 'kotlin' }

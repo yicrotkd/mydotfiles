@@ -269,7 +269,7 @@ if s:is_plugged("ale")
 
 	" perttier settings
 	let g:ale_fixers = {}
-	let g:ale_fixers['javascript'] = ['prettier-eslint']
+	let g:ale_fixers['javascript'] = ['prettier']
     let g:ale_fixers['typescript'] = ['prettier']
     let g:ale_fixers['typescript'] = ['eslint']
 

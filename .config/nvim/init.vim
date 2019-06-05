@@ -93,6 +93,23 @@ if s:is_plugged("denite.nvim")
 	nnoremap [denite] <Nop>
 	nmap <C-u> [denite]
 
+	" Define mappings
+	autocmd FileType denite call s:denite_my_settings()
+	function! s:denite_my_settings() abort
+	  nnoremap <silent><buffer><expr> <CR>
+	  \ denite#do_map('do_action')
+	  nnoremap <silent><buffer><expr> d
+	  \ denite#do_map('do_action', 'delete')
+	  nnoremap <silent><buffer><expr> p
+	  \ denite#do_map('do_action', 'preview')
+	  nnoremap <silent><buffer><expr> q
+	  \ denite#do_map('quit')
+	  nnoremap <silent><buffer><expr> i
+	  \ denite#do_map('open_filter_buffer')
+	  nnoremap <silent><buffer><expr> <Space>
+	  \ denite#do_map('toggle_select').'j'
+	endfunction
+
 	call denite#custom#var('file/rec', 'command', ['rg', '--files', '--glob', '!.git', '--glob', '!node_modules'])
 	call denite#custom#source('file/rec', 'matchers', ['matcher/cpsm', 'matcher/project_files', 'matcher/ignore_globs'])
 	call denite#custom#source('file/rec', 'sorters', ['sorter/sublime'])
@@ -103,7 +120,7 @@ if s:is_plugged("denite.nvim")
 	" narrow by path in grep source
 	call denite#custom#source('grep', 'converters', ['converter/abbr_word'])
 
-	call denite#custom#source('file_mru', 'matchers', ['matcher/cpsm'])
+	call denite#custom#source('file_mru', 'matchers', ['matcher/substring'])
 
 	" tabopen や vsplit のキーバインドを割り当て
 	call denite#custom#map('insert', "<C-t>", '<denite:do_action:tabopen>')
@@ -121,19 +138,19 @@ if s:is_plugged("denite.nvim")
 
 	" key mapping
 	" list flies ctrlp
-	noremap <C-p> :Denite file/rec -mode=insert -highlight-mode-normal=Search<CR>
-	noremap [denite]<C-f> :Denite file/rec -mode=insert -highlight-mode-normal=Search<CR>
+	noremap <C-p> :Denite file/rec<CR>
+	noremap [denite]<C-f> :Denite file/rec<CR>
 
 	" list directories
-	noremap [denite]<C-d> :<C-u>Denite directory_rec -highlight-mode-normal=Search<CR>
-	noremap [denite]<C-c> :<C-u>Denite directory_rec -default-action=cd -highlight-mode-normal=Search<CR>
+	noremap [denite]<C-d> :<C-u>Denite directory_rec<CR>
+	noremap [denite]<C-c> :<C-u>Denite directory_rec<CR>
 
 	" list file_mru
-	noremap [denite]<C-u> :<C-u>Denite file_mru -mode=insert -highlight-mode-normal=Search<CR>
+	noremap [denite]<C-u> :<C-u>Denite file_mru<CR>
 
 	" grep
-	nnoremap <silent> [denite]<C-g> :<C-u>Denite grep -mode=insert -highlight-mode-normal=Search<CR>
-	nnoremap <silent> [denite]<C-r> :<C-u>Denite -resume -highlight-mode-normal=Search<CR>
+	nnoremap <silent> [denite]<C-g> :<C-u>Denite grep<CR>
+	nnoremap <silent> [denite]<C-r> :<C-u>Denite -resume<CR>
 	nnoremap <silent> [denite]<C-n> :<C-u>Denite -resume -cursor-pos=+1 -immediately<CR>
 	nnoremap <silent> [denite]<C-p> :<C-u>Denite -resume -cursor-pos=-1 -immediately<CR>
 
@@ -147,18 +164,12 @@ if s:is_plugged("denite.nvim")
 	call denite#custom#map('normal', '<C-u>', '<denite:move_up_path>', 'noremap')
 	call denite#custom#map('insert', '<C-u>', '<denite:move_up_path>', 'noremap')
 	" cursor key
-	call denite#custom#map(                                                                                                                                                                   
-		  \ 'insert',                                                                                                                                                                         
-		  \ '<Down>',                                                                                                                                                                         
-		  \ '<denite:move_to_next_line>',                                                                                                                                                     
-		  \ 'noremap'                                                                                                                                                                         
-		  \)                                                                                                                                                                                  
-	call denite#custom#map(                                                                                                                                                                   
-		  \ 'insert',                                                                                                                                                                         
-		  \ '<Up>',                                                                                                                                                                           
-		  \ '<denite:move_to_previous_line>',                                                                                                                                                 
-		  \ 'noremap'                                                                                                                                                                         
-		  \)       
+	call denite#custom#map('insert','<Down>', '<denite:move_to_next_line>', 'noremap')
+	call denite#custom#map('insert', '<Up>', '<denite:move_to_previous_line>', 'noremap')
+
+	call denite#custom#option('_', {
+		\ 'start_filter': v:true
+		\ })
 endif
 
 if s:is_plugged("neomru.vim")
@@ -231,7 +242,7 @@ endif
 if s:is_plugged("ale")
 	let g:ale_linters = {
 	\  'javascript': ['eslint'],
-	\  'typescript': ['tslint'],
+	\  'typescript': ['eslint'],
 	\  'rust': ['rustc'],
 	\}
 	" Set this. Airline will handle the rest.
@@ -259,8 +270,8 @@ if s:is_plugged("ale")
 	" perttier settings
 	let g:ale_fixers = {}
 	let g:ale_fixers['javascript'] = ['prettier-eslint']
-    "let g:ale_fixers['typescript'] = ['prettier']
-    let g:ale_fixers['typescript'] = ['tslint']
+    let g:ale_fixers['typescript'] = ['prettier']
+    let g:ale_fixers['typescript'] = ['eslint']
 
 	" ファイル保存時に実行
 	let g:ale_fix_on_save = 1

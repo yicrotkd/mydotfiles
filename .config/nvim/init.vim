@@ -71,12 +71,18 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'thinca/vim-quickrun'
 Plug 'junegunn/vim-emoji'
 Plug 'szw/vim-tags'
+"Plug 'gabrielelana/vim-markdown'
+"Plug 'suan/vim-instant-markdown', {'for': 'markdown'}
 
 " git plugin
 " https://github.com/tpope/vim-fugitive
 Plug 'tpope/vim-fugitive'
 " asynchronous lint engine
 Plug 'w0rp/ale'
+
+" completion plugin
+" Use release branch
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call plug#end()
 
@@ -253,6 +259,8 @@ if s:is_plugged("ale")
 	let g:ale_set_loclist = 0
 	let g:ale_set_quickfix = 1
 
+	command! ALEToggleFixer execute "let g:ale_fix_on_save = get(g:, 'ale_fix_on_save', 0) ? 0 : 1"
+
 	function! LinterStatus() abort
 		let l:counts = ale#statusline#Count(bufnr(''))
 
@@ -271,7 +279,7 @@ if s:is_plugged("ale")
 	let g:ale_fixers = {}
 	let g:ale_fixers['javascript'] = ['prettier']
     let g:ale_fixers['typescript'] = ['prettier']
-    let g:ale_fixers['typescript'] = ['eslint']
+    let g:ale_fixers['yaml'] = ['prettier']
 
 	" ファイル保存時に実行
 	let g:ale_fix_on_save = 1
@@ -396,4 +404,19 @@ endif
 
 if s:is_plugged("vim-tags")
 	nmap <C-i> :pop<CR>
+endif
+
+if s:is_plugged("vim-markdown")
+	let g:markdown_enable_folding = 1
+endif
+
+if s:is_plugged("vim-instant-markdown")
+	filetype plugin on
+	"Uncomment to override defaults:
+	let g:instant_markdown_slow = 1
+	let g:instant_markdown_autostart = 0
+	"let g:instant_markdown_open_to_the_world = 1 
+	"let g:instant_markdown_allow_unsafe_content = 1
+	"let g:instant_markdown_allow_external_content = 0
+	"let g:instant_markdown_mathjax = 1
 endif

@@ -63,7 +63,7 @@ Plug 'easymotion/vim-easymotion'
 Plug 'Shougo/denite.nvim'
 Plug 'Shougo/neomru.vim'
 Plug 'Shougo/vimproc.vim', { 'do': 'make' }
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+"Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'kristijanhusak/defx-git'
 Plug 'kristijanhusak/defx-icons'
@@ -73,8 +73,8 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'thinca/vim-quickrun'
 Plug 'junegunn/vim-emoji'
 Plug 'szw/vim-tags'
-"Plug 'gabrielelana/vim-markdown'
-"Plug 'suan/vim-instant-markdown', {'for': 'markdown'}
+Plug 'gabrielelana/vim-markdown'
+Plug 'suan/vim-instant-markdown', {'for': 'markdown'}
 
 " git plugin
 " https://github.com/tpope/vim-fugitive
@@ -85,6 +85,7 @@ Plug 'w0rp/ale'
 " completion plugin
 " Use release branch
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'honza/vim-snippets'
 
 call plug#end()
 
@@ -202,11 +203,11 @@ if s:is_plugged("neomru.vim")
 endif
 
 if s:is_plugged("defx.nvim")
-	command DefxBufferDir Defx `expand('%:p:h')` -search=`expand('%:p')` -new -columns=git:mark:filename:type
+	command DefxBufferDir Defx `expand('%:p:h')` -search=`expand('%:p')` -new -listed -resume -columns=mark:indent:git:icons:indent:filename:type
 	command DefxSplit Defx -split=vertical -winwidth=50 -direction=topleft
 	command VimFilerBufferDir DefxBufferDir
-	command VimFiler Defx -new -listed -resume -columns=mark:indent:git:icons:indent:filename:type:size:time
-	nnoremap <silent> <Space>f :<C-u>Defx -listed -resume -buffer-name=tab`tabpagenr()`<CR>
+	command VimFiler Defx -new -listed -resume -columns=mark:indent:git:icons:indent:filename:type
+	nnoremap <silent> <Space>f :VimFilerBufferDir<CR>
 
 	let g:defx_git#column_length = 2
 	let g:defx_icons_column_length = 2
@@ -288,6 +289,10 @@ if s:is_plugged("ale")
     let g:ale_fixers['typescript'] = ['prettier']
     let g:ale_fixers['yaml'] = ['prettier']
 
+	let g:ale_pattern_options = {
+	\   'renngadev': {'ale_fixers': []},
+	\}
+
 	" ファイル保存時に実行
 	let g:ale_fix_on_save = 1
 
@@ -317,15 +322,15 @@ if s:is_plugged("vim-airline")
 	let g:airline_powerline_fonts = 1
 endif
 
-if s:is_plugged("deoplete.nvim")
-	let g:deoplete#enable_at_startup = 1
-	" Use smartcase.
-	call deoplete#custom#option('smart_case', v:true)
-
-	" <C-h>, <BS>: close popup and delete backword char.
-	inoremap <expr><C-h> deoplete#smart_close_popup()."\<C-h>"
-	inoremap <expr><BS>  deoplete#smart_close_popup()."\<C-h>"
-endif
+"if s:is_plugged("deoplete.nvim")
+"	let g:deoplete#enable_at_startup = 1
+"	" Use smartcase.
+"	call deoplete#custom#option('smart_case', v:true)
+"
+"	" <C-h>, <BS>: close popup and delete backword char.
+"	inoremap <expr><C-h> deoplete#smart_close_popup()."\<C-h>"
+"	inoremap <expr><BS>  deoplete#smart_close_popup()."\<C-h>"
+"endif
 
 if s:is_plugged("vim-quickrun")
 	let g:quickrun_config = get(g:, 'quickrun_config', {})
@@ -426,4 +431,65 @@ if s:is_plugged("vim-instant-markdown")
 	"let g:instant_markdown_allow_unsafe_content = 1
 	"let g:instant_markdown_allow_external_content = 0
 	"let g:instant_markdown_mathjax = 1
+endif
+
+if s:is_plugged("coc.nvim")
+	augroup HTMLANDXML
+		autocmd!
+		autocmd Filetype xml inoremap <buffer> </ </<C-x><C-o>
+		autocmd Filetype html inoremap <buffer> </ </<C-x><C-o>
+	augroup END
+
+	" use <tab> for trigger completion and navigate to next complete item
+	function! s:check_back_space() abort
+		let col = col('.') - 1
+		return !col || getline('.')[col - 1]  =~ '\s'
+	endfunction
+
+	inoremap <silent><expr> <TAB>
+		  \ pumvisible() ? coc#_select_confirm() :
+		  \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+		  \ <SID>check_back_space() ? "\<TAB>" :
+		  \ coc#refresh()
+
+	let g:airline#extensions#coc#enabled = 1
+	let airline#extensions#coc#error_symbol = 'E:'
+	let airline#extensions#coc#warning_symbol = 'W:'
+	let airline#extensions#coc#stl_format_err = '%E{[%e(#%fe)]}'
+	let airline#extensions#coc#stl_format_warn = '%W{[%w(#%fw)]}'
+
+	"ノーマルモードで
+	"スペース2回でCocList
+	nmap <silent> <space><space> :<C-u>CocList<cr>
+	"スペースhでHover
+	nmap <silent> <space>h :<C-u>call CocAction('doHover')<cr>
+	"スペースdfでDefinition
+	nmap <silent> <space>df <Plug>(coc-definition)
+	"スペースbで戻る
+	nmap <silent> <space>b :<C-u>CocPrev<cr>
+	"スペースrfでReferences
+	nmap <silent> <space>rf <Plug>(coc-references)
+	"スペースtyでTypeDefinition
+	nmap <silent> <space>ty <Plug>(coc-type-definition)
+	"スペースimpでImplementation
+	nmap <silent> <space>imp <Plug>(coc-implementation)
+	"スペースrnでRename
+	nmap <silent> <space>rn <Plug>(coc-rename)
+	"スペースfmtでFormat
+	nmap <silent> <space>fmt <Plug>(coc-format)
+
+	" Use `[g` and `]g` to navigate diagnostics
+	nmap <silent> [g <Plug>(coc-diagnostic-prev)
+	nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+	" Use <C-l> for trigger snippet expand.
+	imap <C-l> <Plug>(coc-snippets-expand)
+
+	" Use <C-j> for select text for visual placeholder of snippet.
+	vmap <C-j> <Plug>(coc-snippets-select)
+
+	let g:coc_snippet_next = '<tab>'
+
+	" Use <C-j> for both expand and jump (make expand higher priority.)
+	imap <C-j> <Plug>(coc-snippets-expand-jump)
 endif

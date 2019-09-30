@@ -5,7 +5,8 @@ fisherman/fzf
 fisherman/getopts
 decors/fish-ghq
 fisherman/git_util
+fisherman/humanize_duration
 oh-my-fish/plugin-peco
+reitzig/sdkman-for-fish
 fisherman/spin
 fisherman/z
-reitzig/sdkman-for-fish

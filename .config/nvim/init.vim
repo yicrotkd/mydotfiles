@@ -37,24 +37,23 @@ endif
 " Plugin Management
 call plug#begin('~/.config/nvim/plugged')
 
-Plug 'cocopon/vaffle.vim', { 'on': 'Vaffle'}
 Plug 'crusoexia/vim-monokai'
 Plug 'phanviet/vim-monokai-pro'
 Plug 'ryanoasis/vim-devicons'
 
 " JavaScript
-Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+"Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 
 " Rust
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 Plug 'racer-rust/vim-racer', { 'for': 'rust' }
 
 " TypeScript
-Plug 'leafgarland/typescript-vim'
-Plug 'peitalin/vim-jsx-typescript'
+"Plug 'leafgarland/typescript-vim'
+"Plug 'peitalin/vim-jsx-typescript'
 
 " set filetypes as typescript.tsx
-"autocmd BufNewFile,BufRead *.tsx,*.jsx set filetype=typescript.tsx
+autocmd BufNewFile,BufRead *.tsx,*.jsx set filetype=typescript.tsx
 
 " Kotlin
 Plug 'udalov/kotlin-vim', { 'for': 'kotlin' }
@@ -80,12 +79,14 @@ Plug 'suan/vim-instant-markdown', {'for': 'markdown'}
 " https://github.com/tpope/vim-fugitive
 Plug 'tpope/vim-fugitive'
 " asynchronous lint engine
-Plug 'w0rp/ale'
+"Plug 'w0rp/ale'
 
 " completion plugin
 " Use release branch
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neoclide/coc.nvim', { 'do': { -> coc#util#install() }}
 Plug 'honza/vim-snippets'
+" snake camel converter
+Plug 'tpope/vim-abolish'
 
 call plug#end()
 
@@ -140,6 +141,7 @@ if s:is_plugged("denite.nvim")
 	call denite#custom#source('file/rec', 'sorters', ['sorter/sublime'])
 
 	call denite#custom#var('grep', 'command', ['pt', '--nogroup', '--nocolor', '--smart-case', '--hidden'])
+	" call denite#custom#var('grep', 'command', ['rg', '--files', '--glob', '!.git', '--glob', '!node_modules'])
 	call denite#custom#var('grep', 'default_opts', [])
 	call denite#custom#var('grep', 'recursive_opts', [])
 	" narrow by path in grep source
@@ -159,11 +161,11 @@ if s:is_plugged("denite.nvim")
 	" Change ignore_globs
 	call denite#custom#filter('matcher/ignore_globs', 'ignore_globs',
 		\ [ '.git/', '.ropeproject/', '__pycache__/',
-		\   'venv/', 'images/', '*.min.*', 'img/', 'fonts/'])
+		\   'venv/', 'images/', '*.min.*', 'img/', 'fonts/','.next/', 'node_modules/'])
 
 	" key mapping
 	" list flies ctrlp
-	noremap <C-p> :Denite file/rec<CR>
+	"noremap <C-p> :Denite file/rec<CR>
 	noremap [denite]<C-f> :Denite file/rec<CR>
 
 	" list directories
@@ -171,13 +173,13 @@ if s:is_plugged("denite.nvim")
 	noremap [denite]<C-c> :<C-u>Denite directory_rec<CR>
 
 	" list file_mru
-	noremap [denite]<C-u> :<C-u>Denite file_mru<CR>
+	"noremap [denite]<C-u> :<C-u>Denite file_mru<CR> "coc移行
 
 	" grep
-	nnoremap <silent> [denite]<C-g> :<C-u>Denite grep<CR>
-	nnoremap <silent> [denite]<C-r> :<C-u>Denite -resume<CR>
-	nnoremap <silent> [denite]<C-n> :<C-u>Denite -resume -cursor-pos=+1 -immediately<CR>
-	nnoremap <silent> [denite]<C-p> :<C-u>Denite -resume -cursor-pos=-1 -immediately<CR>
+	"nnoremap <silent> [denite]<C-g> :<C-u>Denite grep<CR>
+	"nnoremap <silent> [denite]<C-r> :<C-u>Denite -resume<CR>
+	"nnoremap <silent> [denite]<C-n> :<C-u>Denite -resume -cursor-pos=+1 -immediately<CR>
+	"nnoremap <silent> [denite]<C-p> :<C-u>Denite -resume -cursor-pos=-1 -immediately<CR>
 
 	" moving
 	call denite#custom#map('normal', '<C-n>', '<denite:move_to_next_line>', 'noremap')
@@ -253,54 +255,55 @@ if s:is_plugged("defx.nvim")
 	endfunction
 endif
 
-if s:is_plugged("ale")
-	let g:ale_linters = {
-	\  'javascript': ['eslint'],
-	\  'typescript': ['eslint'],
-	\  'rust': ['rustc'],
-	\}
-	" Set this. Airline will handle the rest.
-	let g:airline#extensions#ale#enabled = 1
-
-	let g:ale_lint_on_text_changed = 'never'
-
-	let g:ale_set_loclist = 0
-	let g:ale_set_quickfix = 1
-
-	command! ALEToggleFixer execute "let g:ale_fix_on_save = get(g:, 'ale_fix_on_save', 0) ? 0 : 1"
-
-	function! LinterStatus() abort
-		let l:counts = ale#statusline#Count(bufnr(''))
-
-		let l:all_errors = l:counts.error + l:counts.style_error
-		let l:all_non_errors = l:counts.total - l:all_errors
-
-		return l:counts.total == 0 ? 'OK' : printf(
-		\   '%dW %dE',
-		\   all_non_errors,
-		\   all_errors
-		\)
-	endfunction
-	set statusline=%{LinterStatus()}
-
-	" perttier settings
-	let g:ale_fixers = {}
-	let g:ale_fixers['javascript'] = ['prettier']
-    let g:ale_fixers['typescript'] = ['prettier']
-    let g:ale_fixers['yaml'] = ['prettier']
-
-	let g:ale_pattern_options = {
-	\   'renngadev': {'ale_fixers': []},
-	\}
-
-	" ファイル保存時に実行
-	let g:ale_fix_on_save = 1
-
-	" ローカルの設定ファイルを考慮する
-	let g:ale_javascript_prettier_use_local_config = 1
-	let g:ale_typescript_prettier_use_local_config = 1
-
-endif
+"if s:is_plugged("ale")
+"	let g:ale_linters = {
+"	\  'javascript': ['eslint'],
+"	\  'typescript': ['eslint'],
+"	\  'rust': ['rustc'],
+"	\  'python': [],
+"	\}
+"	" Set this. Airline will handle the rest.
+"	let g:airline#extensions#ale#enabled = 1
+"
+"	let g:ale_lint_on_text_changed = 'never'
+"
+"	let g:ale_set_loclist = 0
+"	let g:ale_set_quickfix = 1
+"
+"	command! ALEToggleFixer execute "let g:ale_fix_on_save = get(g:, 'ale_fix_on_save', 0) ? 0 : 1"
+"
+"	function! LinterStatus() abort
+"		let l:counts = ale#statusline#Count(bufnr(''))
+"
+"		let l:all_errors = l:counts.error + l:counts.style_error
+"		let l:all_non_errors = l:counts.total - l:all_errors
+"
+"		return l:counts.total == 0 ? 'OK' : printf(
+"		\   '%dW %dE',
+"		\   all_non_errors,
+"		\   all_errors
+"		\)
+"	endfunction
+"	set statusline=%{LinterStatus()}
+"
+"	" perttier settings
+"	let g:ale_fixers = {}
+"	let g:ale_fixers['javascript'] = ['prettier']
+"    let g:ale_fixers['typescript'] = ['prettier']
+"    let g:ale_fixers['yaml'] = ['prettier']
+"
+"	let g:ale_pattern_options = {
+"	\   'renngadev': {'ale_fixers': []},
+"	\}
+"
+"	" ファイル保存時に実行
+"	let g:ale_fix_on_save = 1
+"
+"	" ローカルの設定ファイルを考慮する
+"	let g:ale_javascript_prettier_use_local_config = 1
+"	let g:ale_typescript_prettier_use_local_config = 1
+"
+"endif
 
 if s:is_plugged("rust.vim")
 	let g:rustfmt_autosave = 1
@@ -434,6 +437,10 @@ if s:is_plugged("vim-instant-markdown")
 endif
 
 if s:is_plugged("coc.nvim")
+	nmap <C-u> [coc]
+	" for multi cursor
+	hi CocCursorRange guibg=#b16286 guifg=#ebdbb2
+
 	augroup HTMLANDXML
 		autocmd!
 		autocmd Filetype xml inoremap <buffer> </ </<C-x><C-o>
@@ -445,7 +452,6 @@ if s:is_plugged("coc.nvim")
 		let col = col('.') - 1
 		return !col || getline('.')[col - 1]  =~ '\s'
 	endfunction
-
 	inoremap <silent><expr> <TAB>
 		  \ pumvisible() ? coc#_select_confirm() :
 		  \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
@@ -464,19 +470,21 @@ if s:is_plugged("coc.nvim")
 	"スペースhでHover
 	nmap <silent> <space>h :<C-u>call CocAction('doHover')<cr>
 	"スペースdfでDefinition
-	nmap <silent> <space>df <Plug>(coc-definition)
+	nmap <silent> <space>d <Plug>(coc-definition)
 	"スペースbで戻る
 	nmap <silent> <space>b :<C-u>CocPrev<cr>
 	"スペースrfでReferences
 	nmap <silent> <space>rf <Plug>(coc-references)
 	"スペースtyでTypeDefinition
-	nmap <silent> <space>ty <Plug>(coc-type-definition)
+	nmap <silent> <space>t <Plug>(coc-type-definition)
 	"スペースimpでImplementation
-	nmap <silent> <space>imp <Plug>(coc-implementation)
+	nmap <silent> <space>i <Plug>(coc-implementation)
 	"スペースrnでRename
 	nmap <silent> <space>rn <Plug>(coc-rename)
 	"スペースfmtでFormat
 	nmap <silent> <space>fmt <Plug>(coc-format)
+	"スペースqfでFormat
+	nmap <silent> <space>qf <Plug>(coc-fix-current)
 
 	" Use `[g` and `]g` to navigate diagnostics
 	nmap <silent> [g <Plug>(coc-diagnostic-prev)
@@ -486,10 +494,30 @@ if s:is_plugged("coc.nvim")
 	imap <C-l> <Plug>(coc-snippets-expand)
 
 	" Use <C-j> for select text for visual placeholder of snippet.
-	vmap <C-j> <Plug>(coc-snippets-select)
+	"vmap <C-j> <Plug>(coc-snippets-select)
 
 	let g:coc_snippet_next = '<tab>'
 
 	" Use <C-j> for both expand and jump (make expand higher priority.)
 	imap <C-j> <Plug>(coc-snippets-expand-jump)
+
+	" multi cursor settings
+	nmap <silent> <C-c> <Plug>(coc-cursors-position)
+	nmap <silent> <C-d> <Plug>(coc-cursors-word)*
+	xmap <silent> <C-d> y/\V<C-r>=escape(@",'/\')<CR><CR>gN<Plug>(coc-cursors-range)gn
+	" use normal command like `<leader>xi(`
+	nmap <leader>x  <Plug>(coc-cursors-operator)
+
+	" CocList settings
+	" grep current word in current buffer
+	nnoremap <silent> <space>w  :exe 'CocList -I --normal --input='.expand('<cword>').' words'<CR>
+
+	" 全てのファイルを対象とする
+	noremap [coc]<C-u> :<C-u>CocList mru -A<CR>
+	" grep
+	noremap [coc]<C-g> :<C-u>CocList grep<CR>
+	noremap <C-p> :<C-u>CocList files<CR>
+
+	noremap [coc]<C-r> :<C-u>CocListResume<CR>
+
 endif

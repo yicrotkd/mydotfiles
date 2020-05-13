@@ -37,8 +37,9 @@ endif
 " Plugin Management
 call plug#begin('~/.config/nvim/plugged')
 
-Plug 'crusoexia/vim-monokai'
-Plug 'phanviet/vim-monokai-pro'
+"Plug 'crusoexia/vim-monokai'
+"Plug 'phanviet/vim-monokai-pro'
+Plug 'morhetz/gruvbox'
 Plug 'ryanoasis/vim-devicons'
 
 " JavaScript
@@ -78,12 +79,13 @@ Plug 'suan/vim-instant-markdown', {'for': 'markdown'}
 " git plugin
 " https://github.com/tpope/vim-fugitive
 Plug 'tpope/vim-fugitive'
+Plug 'shumphrey/fugitive-gitlab.vim'
 " asynchronous lint engine
 "Plug 'w0rp/ale'
 
 " completion plugin
 " Use release branch
-Plug 'neoclide/coc.nvim', { 'do': { -> coc#util#install() }}
+Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 Plug 'honza/vim-snippets'
 " snake camel converter
 Plug 'tpope/vim-abolish'
@@ -202,6 +204,10 @@ endif
 if s:is_plugged("neomru.vim")
 	let g:neomru#file_mru_limit = 3000
 	let g:neomru#follow_links = 1
+endif
+
+if s:is_plugged("defx.nvim")
+	let g:fugitive_gitlab_domains = ['http://gitlab.fdev']
 endif
 
 if s:is_plugged("defx.nvim")
@@ -345,7 +351,7 @@ if s:is_plugged("vim-quickrun")
 		\ 'outputter/error/error'   : 'quickfix',
 		\ 'outputter/buffer/close_on_empty' : 1,
 		\ }
-	  let g:quickrun_config['sql'] = {
+	let g:quickrun_config['sql'] = {
 		\ 'command': 'psql',
 		\ 'exec': ['%c %o < %s'],
 		\ 'cmdopt': '%{MakepgsqlCommandOptions()}',
@@ -396,6 +402,12 @@ endif
 if s:is_plugged("vim-monokai-pro")
 	set termguicolors
 	colorscheme monokai_pro
+endif
+
+if s:is_plugged("gruvbox")
+	set termguicolors
+	let g:gruvbox_italic = 1
+	colorscheme gruvbox
 endif
 
 if s:is_plugged("vim-easymotion")

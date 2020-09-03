@@ -1,6 +1,6 @@
 #!/bin/bash
 
-files=("_bashrc" "_eslintrc" "_psqlrc" "_pylintrc" "_screenrc" "_vimrc" "_zshrc")
+files=("_bashrc" "_eslintrc" "_psqlrc" "_pylintrc" "_screenrc" "_vimrc" "_zshrc" "_tigrc")
 
 cdir=`pwd`
 

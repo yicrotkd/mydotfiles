@@ -20,6 +20,7 @@ set tabstop=4
 set showtabline=2
 set laststatus=2
 set fileencodings=utf-8,sjis,euc-jp
+set clipboard+=unnamedplus
 
 " keymapping
 noremap <C-J> <C-E>

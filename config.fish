@@ -25,3 +25,6 @@ set -g fish_key_bindings hybrid_bindings
 
 alias pbcopy='xsel --clipboard --input'
 alias ssh='env TERM=xterm ssh'
+
+starship init fish | source
+

@@ -17,10 +17,14 @@ set cmdheight=2
 set softtabstop=4
 set shiftwidth=4
 set tabstop=4
-set showtabline=2
+"set showtabline=2
 set laststatus=2
 set fileencodings=utf-8,sjis,euc-jp
-set clipboard+=unnamedplus
+"set clipboard+=unnamedplus
+set backupcopy=yes
+set nofixeol
+" https://reona.dev/posts/20200823
+set ambiwidth=single
 
 " keymapping
 noremap <C-J> <C-E>
@@ -40,11 +44,17 @@ call plug#begin('~/.config/nvim/plugged')
 
 "Plug 'crusoexia/vim-monokai'
 "Plug 'phanviet/vim-monokai-pro'
+"Plug 'tanvirtin/monokai.nvim'
 Plug 'morhetz/gruvbox'
+"Plug 'sainnhe/gruvbox-material'
 Plug 'ryanoasis/vim-devicons'
+" language packs
+Plug 'sheerun/vim-polyglot'
+Plug 'HerringtonDarkholme/yats.vim'
 
 " JavaScript
 "Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+Plug 'vim-test/vim-test'
 
 " Rust
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
@@ -56,6 +66,10 @@ Plug 'racer-rust/vim-racer', { 'for': 'rust' }
 
 " set filetypes as typescript.tsx
 autocmd BufNewFile,BufRead *.tsx,*.jsx set filetype=typescript.tsx
+
+autocmd BufEnter * highlight Normal guibg=0
+
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " Kotlin
 Plug 'udalov/kotlin-vim', { 'for': 'kotlin' }
@@ -73,13 +87,16 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'thinca/vim-quickrun'
 Plug 'junegunn/vim-emoji'
-Plug 'szw/vim-tags'
+"Plug 'szw/vim-tags'
 Plug 'gabrielelana/vim-markdown'
 Plug 'suan/vim-instant-markdown', {'for': 'markdown'}
+
+Plug 'tyru/open-browser.vim'
 
 " git plugin
 " https://github.com/tpope/vim-fugitive
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rhubarb'
 Plug 'shumphrey/fugitive-gitlab.vim'
 " asynchronous lint engine
 "Plug 'w0rp/ale'
@@ -90,6 +107,16 @@ Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 Plug 'honza/vim-snippets'
 " snake camel converter
 Plug 'tpope/vim-abolish'
+
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
+
+Plug 'mbbill/undotree'
+Plug 'rhysd/conflict-marker.vim'
+
+Plug 'github/copilot.vim'
 
 call plug#end()
 
@@ -211,11 +238,16 @@ if s:is_plugged("defx.nvim")
 	let g:fugitive_gitlab_domains = ['http://gitlab.fdev']
 endif
 
+if s:is_plugged("vim-fugitive")
+	let g:netrw_http_cmd = '/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe'
+	let g:netrw_browsex_viewer = '/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe'
+endif
+
 if s:is_plugged("defx.nvim")
-	command DefxBufferDir Defx `expand('%:p:h')` -search=`expand('%:p')` -new -listed -resume -columns=mark:indent:git:icons:indent:filename:type
+	command DefxBufferDir Defx `expand('%:p:h')` -search=`expand('%:p')` -new -listed -resume -columns=mark:indent:git:indent:icons:indent:filename:type
 	command DefxSplit Defx -split=vertical -winwidth=50 -direction=topleft
 	command VimFilerBufferDir DefxBufferDir
-	command VimFiler Defx -new -listed -resume -columns=mark:indent:git:icons:indent:filename:type
+	command VimFiler Defx -new -listed -resume -columns=mark:indent:git:indent:icons:indent:filename:type
 	nnoremap <silent> <Space>f :VimFilerBufferDir<CR>
 
 	let g:defx_git#column_length = 2
@@ -328,6 +360,19 @@ if s:is_plugged("vim-racer")
 	au FileType rust nmap <leader>gd <Plug>(rust-doc)
 endif
 
+if s:is_plugged("nvim-treesitter")
+" treesitter
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = "all", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  highlight = {
+    enable = true,              -- false will disable the whole extension
+    disable = {},  -- list of language that will be disabled
+  },
+}
+EOF
+endif
+
 if s:is_plugged("vim-airline")
 	let g:airline_powerline_fonts = 1
 endif
@@ -405,10 +450,28 @@ if s:is_plugged("vim-monokai-pro")
 	colorscheme monokai_pro
 endif
 
+if s:is_plugged("monokai")
+	set termguicolors
+	let g:gruvbox_italic = 1
+	colorscheme monokai
+	hi! Normal ctermbg=NONE guibg=NONE
+	"highlight IncSearch guibg=green ctermbg=green term=underline
+endif
+
 if s:is_plugged("gruvbox")
 	set termguicolors
 	let g:gruvbox_italic = 1
 	colorscheme gruvbox
+	hi! Normal ctermbg=NONE guibg=NONE
+	"highlight IncSearch guibg=green ctermbg=green term=underline
+endif
+
+if s:is_plugged("gruvbox-material")
+	set termguicolors
+	let g:gruvbox_italic = 1
+	colorscheme gruvbox-material
+	hi! Normal ctermbg=NONE guibg=NONE
+	"highlight IncSearch guibg=green ctermbg=green term=underline
 endif
 
 if s:is_plugged("vim-easymotion")
@@ -431,7 +494,7 @@ if s:is_plugged("vim-easymotion")
 endif
 
 if s:is_plugged("vim-tags")
-	nmap <C-i> :pop<CR>
+	" nmap <C-i> :pop<CR>
 endif
 
 if s:is_plugged("vim-markdown")
@@ -447,6 +510,15 @@ if s:is_plugged("vim-instant-markdown")
 	"let g:instant_markdown_allow_unsafe_content = 1
 	"let g:instant_markdown_allow_external_content = 0
 	"let g:instant_markdown_mathjax = 1
+endif
+
+if s:is_plugged("open-browser.vim")
+	let g:openbrowser_browser_commands = [
+		\ {"name": "/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe",
+		\  "args": ["{browser}", "{uri}"]}
+	\]
+	nmap gx <Plug>(openbrowser-smart-search)
+	vmap gx <Plug>(openbrowser-smart-search)
 endif
 
 if s:is_plugged("coc.nvim")
@@ -533,4 +605,23 @@ if s:is_plugged("coc.nvim")
 
 	noremap [coc]<C-r> :<C-u>CocListResume<CR>
 
+endif
+
+if s:is_plugged("undotree")
+  set undodir="$HOME/.undodir"
+  set undofile
+endif
+
+autocmd BufNewFile,BufRead *.sqltmpl  set filetype=sql
+
+
+if s:is_plugged("vim-test")
+	let test#strategy = "neovim"
+endif
+
+if system('uname -a | grep microsoft') != ''
+  augroup myYank
+    autocmd!
+    autocmd TextYankPost * :call system('clip.exe', @")
+  augroup END
 endif

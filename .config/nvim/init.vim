@@ -116,7 +116,7 @@ Plug 'prabirshrestha/asyncomplete-lsp.vim'
 Plug 'mbbill/undotree'
 Plug 'rhysd/conflict-marker.vim'
 
-Plug 'github/copilot.vim'
+"Plug 'github/copilot.vim'
 
 call plug#end()
 
@@ -532,16 +532,24 @@ if s:is_plugged("coc.nvim")
 		autocmd Filetype html inoremap <buffer> </ </<C-x><C-o>
 	augroup END
 
-	" use <tab> for trigger completion and navigate to next complete item
-	function! s:check_back_space() abort
-		let col = col('.') - 1
-		return !col || getline('.')[col - 1]  =~ '\s'
+	function! CheckBackspace() abort
+	  let col = col('.') - 1
+	  return !col || getline('.')[col - 1]  =~ '\s'
 	endfunction
+
+  " Insert <tab> when previous text is space.
+	inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
+	" Map <tab> for trigger completion, completion confirm, snippet expand and jump
+	" like VSCode:  
 	inoremap <silent><expr> <TAB>
-		  \ pumvisible() ? coc#_select_confirm() :
-		  \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
-		  \ <SID>check_back_space() ? "\<TAB>" :
-		  \ coc#refresh()
+		\ coc#pum#visible() ? coc#_select_confirm() :
+		\ coc#expandableOrJumpable() ?
+		\ "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+		\ CheckBackspace() ? "\<TAB>" :
+		\ coc#refresh()
+
+	let g:coc_snippet_next = '<tab>'
 
 	let g:airline#extensions#coc#enabled = 1
 	let airline#extensions#coc#error_symbol = 'E:'

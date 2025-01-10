@@ -32,6 +32,9 @@ noremap <C-K> <C-Y>
 noremap <C-H> <C-W><
 noremap <C-L> <C-W>>
 
+nnoremap <silent> <Leader>r :source $MYVIMRC<cr>
+nnoremap <silent> <Leader>v :e $MYVIMRC<cr>
+
 " auto-install vim-plug                                                                                                                
 if empty(glob('~/.local/share/nvim/site/autoload/plug.vim'))
     silent !curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs
@@ -45,12 +48,14 @@ call plug#begin('~/.config/nvim/plugged')
 "Plug 'crusoexia/vim-monokai'
 "Plug 'phanviet/vim-monokai-pro'
 "Plug 'tanvirtin/monokai.nvim'
-Plug 'morhetz/gruvbox'
+"Plug 'morhetz/gruvbox'
 "Plug 'sainnhe/gruvbox-material'
+Plug 'folke/tokyonight.nvim'
 Plug 'ryanoasis/vim-devicons'
 " language packs
 Plug 'sheerun/vim-polyglot'
 Plug 'HerringtonDarkholme/yats.vim'
+Plug 'rest-nvim/rest.nvim'
 
 " JavaScript
 "Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
@@ -66,6 +71,7 @@ Plug 'racer-rust/vim-racer', { 'for': 'rust' }
 
 " set filetypes as typescript.tsx
 autocmd BufNewFile,BufRead *.tsx,*.jsx set filetype=typescript.tsx
+autocmd BufNewFile,BufRead *.cjs set filetype=javascript
 
 autocmd BufEnter * highlight Normal guibg=0
 
@@ -88,8 +94,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'thinca/vim-quickrun'
 Plug 'junegunn/vim-emoji'
 "Plug 'szw/vim-tags'
-Plug 'gabrielelana/vim-markdown'
-Plug 'suan/vim-instant-markdown', {'for': 'markdown'}
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
 
 Plug 'tyru/open-browser.vim'
 
@@ -108,15 +113,32 @@ Plug 'honza/vim-snippets'
 " snake camel converter
 Plug 'tpope/vim-abolish'
 
-Plug 'prabirshrestha/vim-lsp'
-Plug 'mattn/vim-lsp-settings'
-Plug 'prabirshrestha/asyncomplete.vim'
-Plug 'prabirshrestha/asyncomplete-lsp.vim'
+" Plug 'prabirshrestha/vim-lsp'
+" Plug 'mattn/vim-lsp-settings'
+" Plug 'prabirshrestha/asyncomplete.vim'
+" Plug 'prabirshrestha/asyncomplete-lsp.vim'
+
+Plug 'dstein64/vim-startuptime'
 
 Plug 'mbbill/undotree'
 Plug 'rhysd/conflict-marker.vim'
 
-"Plug 'github/copilot.vim'
+Plug 'github/copilot.vim'
+
+Plug 'zbirenbaum/copilot.lua'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'CopilotC-Nvim/CopilotChat.nvim', { 'branch': 'canary' }
+
+" avante deps
+Plug 'stevearc/dressing.nvim'
+Plug 'MunifTanjim/nui.nvim'
+
+" Yay, pass source=true if you want to build from source
+Plug 'yetone/avante.nvim', { 'branch': 'main', 'do': { -> avante#build('source=true') } }
+autocmd! User avante.nvim lua << EOF
+require('avante_lib').load()
+require('avante').setup()
+EOF
 
 call plug#end()
 
@@ -238,9 +260,14 @@ if s:is_plugged("defx.nvim")
 	let g:fugitive_gitlab_domains = ['http://gitlab.fdev']
 endif
 
+if s:is_plugged("fugitive-gitlab.vim")
+	let g:fugitive_gitlab_domains = ['http://gitlab.fdev']
+endif
+
 if s:is_plugged("vim-fugitive")
 	let g:netrw_http_cmd = '/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe'
 	let g:netrw_browsex_viewer = '/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe'
+	let g:fugitive_gitlab_domains = ['http://gitlab.fdev']
 endif
 
 if s:is_plugged("defx.nvim")
@@ -364,10 +391,17 @@ if s:is_plugged("nvim-treesitter")
 " treesitter
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = "all", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = { "c", "lua", "vim", "vimdoc", "rust", "typescript", "javascript", "json", "yaml", "html", "css", "bash", "toml", "tsx", "python", "markdown", "gitcommit", "git_config" },
+  auto_install = true,
   highlight = {
     enable = true,              -- false will disable the whole extension
-    disable = {},  -- list of language that will be disabled
+    disable = function(lang, buf)
+      local max_filesize = 100 * 1024 -- 100 KB
+      local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+      if ok and stats and stats.size > max_filesize then
+        return true
+      end
+    end,
   },
 }
 EOF
@@ -474,6 +508,13 @@ if s:is_plugged("gruvbox-material")
 	"highlight IncSearch guibg=green ctermbg=green term=underline
 endif
 
+if s:is_plugged("tokyonight.nvim")
+    set termguicolors
+    colorscheme tokyonight-moon
+    hi! Normal ctermbg=NONE guibg=NONE
+    "highlight IncSearch guibg=green ctermbg=green term=underline
+endif
+
 if s:is_plugged("vim-easymotion")
 	let g:EasyMotion_do_mapping = 0
 	" <leader>f{char} to move to {char}
@@ -514,7 +555,8 @@ endif
 
 if s:is_plugged("open-browser.vim")
 	let g:openbrowser_browser_commands = [
-		\ {"name": "/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe",
+		\ {"name": "/mnt/c/Program\ Files/Google/Chrome/Application/chrome.exe",
+		"\ {"name": "/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
 		\  "args": ["{browser}", "{uri}"]}
 	\]
 	nmap gx <Plug>(openbrowser-smart-search)
@@ -627,9 +669,24 @@ if s:is_plugged("vim-test")
 	let test#strategy = "neovim"
 endif
 
-if system('uname -a | grep microsoft') != ''
-  augroup myYank
-    autocmd!
-    autocmd TextYankPost * :call system('clip.exe', @")
-  augroup END
-endif
+lua << EOF
+require("CopilotChat").setup {
+    debug = true, -- Enable debugging
+    -- See Configuration section for rest
+}
+EOF
+
+set clipboard=unnamed
+
+let g:clipboard = {
+  \   'name': 'myClipboard',
+  \   'copy': {
+  \      '+': 'win32yank.exe -i',
+  \      '*': 'win32yank.exe -i',
+  \    },
+  \   'paste': {
+  \      '+': 'win32yank.exe -o',
+  \      '*': 'win32yank.exe -o',
+  \   },
+  \   'cache_enabled': 1,
+  \ }

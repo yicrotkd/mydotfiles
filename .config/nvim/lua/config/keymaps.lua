@@ -35,8 +35,10 @@ vim.keymap.set("n", "<leader>ev", ":e $MYVIMRC<cr>", { desc = "Open my vimrc" })
 
 -- fzf-lua keybind
 vim.keymap.set("n", "<C-\\>", [[<Cmd>lua require"fzf-lua".buffers()<CR>]], {})
-vim.keymap.set("n", "<C-u><C-u>", [[<Cmd>lua require"fzf-lua".resume()<CR>]], { desc = "Resume fzf-lua" })
+vim.keymap.set("n", "<C-u><C-r>", [[<Cmd>lua require"fzf-lua".resume()<CR>]], { desc = "Resume fzf-lua" })
+vim.keymap.set("n", "<C-u><C-u>", [[<Cmd>lua require"fzf-lua".mru()<CR>]], { desc = "Resume fzf-lua" })
 vim.keymap.set("n", "<C-u><C-b>", [[<Cmd>lua require"fzf-lua".builtin()<CR>]], { desc = "Builtins fzf-lua" })
+vim.keymap.set("n", "<C-u><C-c>", [[<Cmd>lua require"fzf-lua".commands()<CR>]], { desc = "Commands fzf-lua" })
 vim.keymap.set("n", "<C-p>", [[<Cmd>lua require"fzf-lua".files()<CR>]], { desc = "Find files with fzf-lua" })
 vim.keymap.set("n", "<C-l>", [[<Cmd>lua require"fzf-lua".live_grep_glob()<CR>]], {})
 vim.keymap.set("n", "<C-g>", [[<Cmd>lua require"fzf-lua".grep_project()<CR>]], {})

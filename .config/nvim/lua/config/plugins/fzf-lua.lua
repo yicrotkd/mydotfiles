@@ -1,9 +1,39 @@
 return {
 	"ibhagwan/fzf-lua",
-	dependencies = { "nvim-tree/nvim-web-devicons" },
+	dependencies = { "nvim-tree/nvim-web-devicons", "lambdalisue/vim-mr" },
 	opts = {},
 	config = function()
-		require("fzf-lua").setup({
+		vim.cmd([[
+			let g:mr#threshold = 3000
+		]])
+		local fzf_lua = require("fzf-lua")
+
+		---@param mode? "mru"|"mrr"|"mrw"
+		local function mru(mode)
+			mode = mode or "mru"
+			fzf_lua.fzf_exec(function(cb)
+				for _, path in ipairs(vim.fn[("mr#%s#list"):format(mode)]()) do
+					local entry = fzf_lua.make_entry.file(path, { file_icons = true, color_icons = true })
+					cb(entry)
+				end
+				cb()
+			end, {
+				prompt = ("%s> "):format(mode:upper()),
+				actions = {
+					["default"] = fzf_lua.actions.file_edit,
+					["ctrl-x"] = fzf_lua.actions.file_split,
+					["ctrl-v"] = fzf_lua.actions.file_vsplit,
+				},
+				previewer = "builtin",
+				fzf_opts = {
+					["--no-sort"] = "",
+				},
+			})
+		end
+
+		fzf_lua.mru = mru
+
+		fzf_lua.setup({
 			windopts = {
 				-- split = "belowright new",-- open in a split instead?
 				-- "belowright new"  : split below

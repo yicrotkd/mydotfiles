@@ -28,8 +28,8 @@ vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" }
 --  See `:help wincmd` for a list of all window commands
 vim.keymap.set("n", "<C-h>", "<C-w><", { desc = "Resize the window to the left" })
 vim.keymap.set("n", "<C-l>", "<C-w>>", { desc = "Resize the window to the right" })
-vim.keymap.set("n", "<C-j>", "<C-e>", { desc = "Move to the lower window without cursor moving" })
-vim.keymap.set("n", "<C-k>", "<C-y>", { desc = "Move to the upper window without cursor moving" })
+vim.keymap.set({ "n", "v" }, "<C-j>", "<C-e>", { desc = "Move to the lower window without cursor moving" })
+vim.keymap.set({ "n", "v" }, "<C-k>", "<C-y>", { desc = "Move to the upper window without cursor moving" })
 
 vim.keymap.set("n", "<leader>ev", ":e $MYVIMRC<cr>", { desc = "Open my vimrc" })
 

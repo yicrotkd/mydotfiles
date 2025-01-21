@@ -15,7 +15,7 @@ return {
 					["<C-s>"] = { "actions.select", opts = { vertical = true } },
 					["<C-h>"] = { "actions.select", opts = { horizontal = true } },
 					["<C-t>"] = { "actions.select", opts = { tab = true } },
-					["<C-p>"] = { "actions.preview", opts = { split = "botright" } },
+					-- ["<C-p>"] = { "actions.preview", opts = { split = "botright" } },
 					["<C-c>"] = { "actions.close", mode = "n" },
 					["<C-l>"] = "actions.refresh",
 					["h"] = { "actions.parent", mode = "n" },
@@ -27,6 +27,7 @@ return {
 					["."] = { "actions.toggle_hidden", mode = "n" },
 					["g\\"] = { "actions.toggle_trash", mode = "n" },
 				},
+				use_default_keymaps = false,
 				win_options = {
 					signcolumn = "yes:2",
 				},

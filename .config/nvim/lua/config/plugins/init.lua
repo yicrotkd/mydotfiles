@@ -4,8 +4,9 @@ return {
 	{
 		"almo7aya/openingh.nvim",
 		config = function()
+			vim.g.openingh_copy_to_register = true
+
 			vim.api.nvim_create_user_command("GBrowse", "OpenInGHFile", {
-				register = vim.g.openingh_copy_to_register,
 				range = true,
 				bang = true,
 				nargs = "*",
@@ -32,157 +33,6 @@ return {
 				copilot_none_command = "node",
 			})
 		end,
-	},
-	{
-		"zbirenbaum/copilot-cmp",
-		config = function()
-			require("copilot_cmp").setup()
-		end,
-	},
-	{
-		"CopilotC-Nvim/CopilotChat.nvim",
-		branch = "main",
-		dependencies = {
-			{ "zbirenbaum/copilot.lua" }, -- or github/copilot.vim
-			{ "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
-		},
-		build = "make tiktoken", -- Only on MacOS or Linux
-		opts = {
-			debug = true, -- Enable debugging
-			-- See Configuration section for rest
-		},
-		-- See Commands section for default commands if you want to lazy load on them
-		config = function()
-			require("CopilotChat").setup({
-				show_help = "yes",
-				prompts = {
-					Explain = {
-						prompt = "/COPILOT_EXPLAIN コードを日本語で説明してください",
-						mapping = "<leader>ce",
-						description = "コードの説明をお願いする",
-					},
-					Review = {
-						prompt = "/COPILOT_REVIEW コードを日本語でレビューしてください。",
-						mapping = "<leader>cr",
-						description = "コードのレビューをお願いする",
-					},
-					Fix = {
-						prompt = "/COPILOT_FIX このコードには問題があります。バグを修正したコードを表示してください。説明は日本語でお願いします。",
-						mapping = "<leader>cf",
-						description = "コードの修正をお願いする",
-					},
-					Optimize = {
-						prompt = "/COPILOT_REFACTOR 選択したコードを最適化し、パフォーマンスと可読性を向上させてください。説明は日本語でお願いします。",
-						mapping = "<leader>co",
-						description = "コードの最適化をお願いする",
-					},
-					Docs = {
-						prompt = "/COPILOT_GENERATE 選択したコードに関するドキュメントコメントを日本語で生成してください。",
-						mapping = "<leader>cd",
-						description = "コードのドキュメント作成をお願いする",
-					},
-					Tests = {
-						prompt = "/COPILOT_TESTS 選択したコードの詳細なユニットテストを書いてください。説明は日本語でお願いします。",
-						mapping = "<leader>ct",
-						description = "テストコード作成をお願いする",
-					},
-					FixDiagnostic = {
-						prompt = "コードの診断結果に従って問題を修正してください。修正内容の説明は日本語でお願いします。",
-						mapping = "<leader>cd",
-						description = "コードの修正をお願いする",
-						selection = require("CopilotChat.select").diagnostics,
-					},
-					Commit = {
-						prompt = "実装差分に対するコミットメッセージを日本語で記述してください。",
-						mapping = "<leader>cco",
-						description = "コミットメッセージの作成をお願いする",
-						selection = require("CopilotChat.select").gitdiff,
-					},
-					CommitStaged = {
-						prompt = "ステージ済みの変更に対するコミットメッセージを日本語で記述してください。",
-						mapping = "<leader>cs",
-						description = "ステージ済みのコミットメッセージの作成をお願いする",
-						selection = function(source)
-							return require("CopilotChat.select").gitdiff(source, true)
-						end,
-					},
-				},
-			})
-		end,
-	},
-	{
-		"yetone/avante.nvim",
-		event = "VeryLazy",
-		lazy = false,
-		version = false,
-		opts = {
-			provider = "copilot", -- copilotを使用
-			auto_suggestions_provider = "copilot", -- 自動提案もcopilotを使用
-
-			behaviour = {
-				auto_suggestions = false,
-				auto_set_highlight_group = true,
-				auto_set_keymaps = true,
-				auto_apply_diff_after_generation = false,
-				support_paste_from_clipboard = false,
-				minimize_diff = true,
-			},
-
-			windows = {
-				position = "right",
-				wrap = true,
-				width = 30,
-				sidebar_header = {
-					enabled = true,
-					align = "center",
-					rounded = true,
-				},
-				input = {
-					prefix = "> ",
-					height = 8,
-				},
-				edit = {
-					border = "rounded",
-					start_insert = true,
-				},
-				ask = {
-					floating = false,
-					start_insert = true,
-					border = "rounded",
-					focus_on_apply = "ours",
-				},
-			},
-		},
-		build = "make",
-		dependencies = {
-			"stevearc/dressing.nvim",
-			"nvim-lua/plenary.nvim",
-			"MunifTanjim/nui.nvim",
-			"hrsh7th/nvim-cmp",
-			"nvim-tree/nvim-web-devicons",
-			"zbirenbaum/copilot.lua",
-			{
-				"HakonHarnes/img-clip.nvim",
-				event = "VeryLazy",
-				opts = {
-					default = {
-						embed_image_as_base64 = false,
-						prompt_for_file_name = false,
-						drag_and_drop = {
-							insert_mode = true,
-						},
-						use_absolute_path = true,
-					},
-				},
-			},
-			{
-				"MeanderingProgrammer/render-markdown.nvim",
-				opts = {
-					file_types = { "markdown", "Avante" },
-				},
-				ft = { "markdown", "Avante" },
-			},
-		},
 	},
 
 	-- NOTE: Plugins can also be added by using a table,
@@ -334,7 +184,8 @@ return {
 
 			-- [[ Configure Telescope ]]
 			-- See `:help telescope` and `:help telescope.setup()`
-			require("telescope").setup({
+			local telescope = require("telescope")
+			telescope.setup({
 				-- You can put your default mappings / updates / etc. in here
 				--  All the info you're looking for is in `:help telescope.setup()`
 				--
@@ -567,6 +418,7 @@ return {
 				end,
 			})
 
+			vim.diagnostic.config({ severity_sort = true })
 			-- Change diagnostic symbols in the sign column (gutter)
 			-- if vim.g.have_nerd_font then
 			--   local signs = { ERROR = '', WARN = '', INFO = '', HINT = '' }

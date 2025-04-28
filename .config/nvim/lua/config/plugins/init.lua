@@ -407,7 +407,6 @@ return {
 		},
 	},
 	{ "Bilal2453/luvit-meta", lazy = true },
-	{ "soulis-1256/eagle.nvim" },
 	{
 		"rachartier/tiny-inline-diagnostic.nvim",
 		event = "VeryLazy", -- Or `LspAttach`
